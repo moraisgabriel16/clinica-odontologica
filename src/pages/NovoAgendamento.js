@@ -68,6 +68,7 @@ const schema = yup.object({
   dentistaId: yup.string().required("Dentista é obrigatório"),
   procedimentoId: yup.string().required("Procedimento é obrigatório"),
   dataHora: yup.date().required("Data e hora são obrigatórios"),
+  duracao: yup.number().min(15, "Duração mínima de 15 minutos").required("Duração é obrigatória"),
 });
 
 const NovoAgendamento = () => {
@@ -84,7 +85,7 @@ const NovoAgendamento = () => {
   });
 
   useEffect(() => {
-    // Buscar pacientes
+    // Buscar pacientes, dentistas e procedimentos
     const fetchPacientes = async () => {
       try {
         const response = await axios.get("https://clinica-backend-beige.vercel.app/api/pacientes");
@@ -94,7 +95,6 @@ const NovoAgendamento = () => {
       }
     };
 
-    // Buscar dentistas
     const fetchDentistas = async () => {
       try {
         const response = await axios.get("https://clinica-backend-beige.vercel.app/api/dentistas");
@@ -104,7 +104,6 @@ const NovoAgendamento = () => {
       }
     };
 
-    // Buscar procedimentos
     const fetchProcedimentos = async () => {
       try {
         const response = await axios.get("https://clinica-backend-beige.vercel.app/api/procedimentos");
@@ -170,6 +169,10 @@ const NovoAgendamento = () => {
         <Label htmlFor="dataHora">Data e Hora</Label>
         <Input type="datetime-local" {...register("dataHora")} />
         {errors.dataHora && <ErrorMessage>{errors.dataHora.message}</ErrorMessage>}
+
+        <Label htmlFor="duracao">Duração (em minutos)</Label>
+        <Input type="number" {...register("duracao")} />
+        {errors.duracao && <ErrorMessage>{errors.duracao.message}</ErrorMessage>}
 
         <Button type="submit">Agendar</Button>
       </Form>
