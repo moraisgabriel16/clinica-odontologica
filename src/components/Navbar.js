@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -71,13 +71,29 @@ const HamburgerIcon = styled.div`
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Hook para fechar o menu ao clicar fora dele
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <NavbarContainer>
+    <NavbarContainer ref={navRef}>
       <HamburgerIcon onClick={toggleMenu}>
         <div></div>
         <div></div>
