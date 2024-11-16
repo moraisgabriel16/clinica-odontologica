@@ -100,7 +100,7 @@ const validationSchema = Yup.object({
 const CadastroPaciente = () => {
   const handleSubmit = (values) => {
     axios
-      .post("http://localhost:5000/pacientes", values)
+      .post("https://clinica-backend-beige.vercel.app//pacientes", values)
       .then(() => {
         alert("Paciente cadastrado com sucesso!");
       })

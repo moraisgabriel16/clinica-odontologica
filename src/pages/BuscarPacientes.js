@@ -50,7 +50,7 @@ const BuscarPacientes = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/pacientes")
+      .get("https://clinica-backend-beige.vercel.app//api/pacientes")
       .then((response) => setPacientes(response.data))
       .catch((error) => console.error("Erro ao buscar pacientes:", error));
   }, []);

@@ -116,10 +116,10 @@ const Configuracoes = () => {
   useEffect(() => {
     const fetchConfiguracoes = async () => {
       try {
-        const dentistasResponse = await axios.get('http://localhost:5000/api/dentistas');
+        const dentistasResponse = await axios.get('https://clinica-backend-beige.vercel.app//api/dentistas');
         setDentistas(dentistasResponse.data);
 
-        const procedimentosResponse = await axios.get('http://localhost:5000/api/procedimentos');
+        const procedimentosResponse = await axios.get('https://clinica-backend-beige.vercel.app//api/procedimentos');
         setProcedimentos(procedimentosResponse.data);
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
@@ -132,7 +132,7 @@ const Configuracoes = () => {
   const handleAddDentista = async () => {
     if (novoDentista) {
       try {
-        const response = await axios.post('http://localhost:5000/api/dentistas', { nome: novoDentista });
+        const response = await axios.post('https://clinica-backend-beige.vercel.app//api/dentistas', { nome: novoDentista });
         setDentistas([...dentistas, response.data]);
         setNovoDentista('');
       } catch (error) {
@@ -148,7 +148,7 @@ const Configuracoes = () => {
 
   const handleUpdateDentista = async () => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/dentistas/${editDentistaId}`, { nome: editDentistaNome });
+      const response = await axios.put(`https://clinica-backend-beige.vercel.app//api/dentistas/${editDentistaId}`, { nome: editDentistaNome });
       setDentistas(dentistas.map((dentista) => (dentista._id === editDentistaId ? response.data : dentista)));
       setEditDentistaId(null);
       setEditDentistaNome('');
@@ -159,7 +159,7 @@ const Configuracoes = () => {
 
   const handleDeleteDentista = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/dentistas/${id}`);
+      await axios.delete(`https://clinica-backend-beige.vercel.app//api/dentistas/${id}`);
       setDentistas(dentistas.filter((dentista) => dentista._id !== id));
     } catch (error) {
       console.error('Erro ao deletar dentista:', error);
@@ -170,7 +170,7 @@ const Configuracoes = () => {
   const handleAddProcedimento = async () => {
     if (novoProcedimento && corProcedimento) {
       try {
-        const response = await axios.post('http://localhost:5000/api/procedimentos', { nome: novoProcedimento, cor: corProcedimento });
+        const response = await axios.post('https://clinica-backend-beige.vercel.app//api/procedimentos', { nome: novoProcedimento, cor: corProcedimento });
         setProcedimentos([...procedimentos, response.data]);
         setNovoProcedimento('');
         setCorProcedimento('#000000');
@@ -188,7 +188,7 @@ const Configuracoes = () => {
 
   const handleUpdateProcedimento = async () => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/procedimentos/${editProcedimentoId}`, { nome: editProcedimentoNome, cor: editProcedimentoCor });
+      const response = await axios.put(`https://clinica-backend-beige.vercel.app//api/procedimentos/${editProcedimentoId}`, { nome: editProcedimentoNome, cor: editProcedimentoCor });
       setProcedimentos(procedimentos.map((proc) => (proc._id === editProcedimentoId ? response.data : proc)));
       setEditProcedimentoId(null);
       setEditProcedimentoNome('');
@@ -200,7 +200,7 @@ const Configuracoes = () => {
 
   const handleDeleteProcedimento = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/procedimentos/${id}`);
+      await axios.delete(`https://clinica-backend-beige.vercel.app//api/procedimentos/${id}`);
       setProcedimentos(procedimentos.filter((proc) => proc._id !== id));
     } catch (error) {
       console.error('Erro ao deletar procedimento:', error);

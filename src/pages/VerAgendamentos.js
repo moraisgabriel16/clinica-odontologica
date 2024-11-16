@@ -128,7 +128,7 @@ const VerAgendamentos = () => {
     // Carregar agendamentos da API
     const fetchAgendamentos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/agendamentos');
+        const response = await axios.get('https://clinica-backend-beige.vercel.app//api/agendamentos');
         const formattedAgendamentos = response.data.map((agendamento) => ({
           id: agendamento._id,
           title: `Paciente: ${agendamento.pacienteId ? agendamento.pacienteId.nome_completo : 'Desconhecido'} - Dentista: ${agendamento.dentistaId ? agendamento.dentistaId.nome : 'Não Informado'}`,
@@ -146,7 +146,7 @@ const VerAgendamentos = () => {
     // Carregar pacientes, dentistas e procedimentos
     const fetchPacientes = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/pacientes');
+        const response = await axios.get('https://clinica-backend-beige.vercel.app//api/pacientes');
         setPacientes(response.data);
       } catch (error) {
         console.error('Erro ao carregar pacientes:', error);
@@ -155,7 +155,7 @@ const VerAgendamentos = () => {
 
     const fetchDentistas = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/dentistas');
+        const response = await axios.get('https://clinica-backend-beige.vercel.app//api/dentistas');
         setDentistas(response.data);
       } catch (error) {
         console.error('Erro ao carregar dentistas:', error);
@@ -164,7 +164,7 @@ const VerAgendamentos = () => {
 
     const fetchProcedimentos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/procedimentos');
+        const response = await axios.get('https://clinica-backend-beige.vercel.app//api/procedimentos');
         setProcedimentos(response.data);
       } catch (error) {
         console.error('Erro ao carregar procedimentos:', error);
@@ -218,7 +218,7 @@ const VerAgendamentos = () => {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/agendamentos', newAgendamento);
+      await axios.post('https://clinica-backend-beige.vercel.app//api/agendamentos', newAgendamento);
       alert('Agendamento criado com sucesso!');
       closeModal();
       window.location.reload(); // Para atualizar os agendamentos no calendário
@@ -237,7 +237,7 @@ const VerAgendamentos = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/agendamentos/${selectedAgendamento.id}`, updatedAgendamento);
+      await axios.put(`https://clinica-backend-beige.vercel.app//api/agendamentos/${selectedAgendamento.id}`, updatedAgendamento);
       alert('Agendamento atualizado com sucesso!');
       closeEditModal();
       window.location.reload(); // Para atualizar os agendamentos no calendário
@@ -251,7 +251,7 @@ const VerAgendamentos = () => {
     const confirmed = window.confirm('Tem certeza que deseja excluir este agendamento?');
     if (confirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/agendamentos/${selectedAgendamento.id}`);
+        await axios.delete(`https://clinica-backend-beige.vercel.app//api/agendamentos/${selectedAgendamento.id}`);
         alert('Agendamento excluído com sucesso!');
         closeEditModal();
         window.location.reload(); // Para atualizar os agendamentos no calendário
