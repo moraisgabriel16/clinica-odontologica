@@ -1,105 +1,106 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const NavbarContainer = styled.nav`
-  background-color: #007bff;
-  padding: 15px;
-  position: relative;
-`;
-
-const NavList = styled.ul`
-  list-style-type: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0;
-  padding: 0;
-  flex-wrap: wrap;
+  background-color: #007bff;
+  padding: 15px;
+  color: white;
 
-  @media (max-width: 768px) {
-    display: ${(props) => (props.isOpen ? "block" : "none")};
+  .menu {
+    display: ${({ isOpen }) => (isOpen ? "block" : "none")};
     position: absolute;
     top: 60px;
-    left: 0;
-    right: 0;
+    right: 10px;
     background-color: #007bff;
-    padding: 10px;
-    border-radius: 0 0 8px 8px;
-  }
-`;
-
-const NavItem = styled.li`
-  color: white;
-  font-weight: bold;
-  margin: 0 10px;
-
-  &:hover {
-    text-decoration: underline;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
-  @media (max-width: 768px) {
-    margin: 10px 0;
-  }
-`;
-
-const StyledLink = styled(Link)`
-  color: white;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const HamburgerIcon = styled.div`
-  display: none;
-  cursor: pointer;
-
-  @media (max-width: 768px) {
+  .menu a {
     display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: white;
+    &:hover {
+      background-color: #0056b3;
+    }
   }
+
+  @media (min-width: 768px) {
+    .menu {
+      display: flex;
+      position: static;
+      box-shadow: none;
+      flex-direction: row;
+    }
+    .menu a {
+      padding: 0 15px;
+    }
+  }
+`;
+
+const Hamburger = styled.div`
+  display: block;
+  cursor: pointer;
 
   div {
     width: 25px;
     height: 3px;
     background-color: white;
-    margin: 5px 0;
-    transition: 0.4s;
+    margin: 5px;
+    transition: 0.3s;
+  }
+
+  @media (min-width: 768px) {
+    display: none;
   }
 `;
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navbarRef = useRef(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Handler to close the menu when clicking outside of the navbar
+  const handleClickOutside = (event) => {
+    if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <NavbarContainer>
-      <HamburgerIcon onClick={toggleMenu}>
+    <NavbarContainer ref={navbarRef} isOpen={isOpen}>
+      <h1>Clínica Odontológica</h1>
+      <Hamburger onClick={toggleMenu}>
         <div></div>
         <div></div>
         <div></div>
-      </HamburgerIcon>
-      <NavList isOpen={isOpen}>
-        <NavItem>
-          <StyledLink to="/cadastro-paciente">Cadastro de Paciente</StyledLink>
-        </NavItem>
-        <NavItem>
-          <StyledLink to="/buscar-pacientes">Buscar Pacientes</StyledLink>
-        </NavItem>
-        <NavItem>
-          <StyledLink to="/novo-agendamento">Novo Agendamento</StyledLink>
-        </NavItem>
-        <NavItem>
-          <StyledLink to="/ver-agendamentos">Ver Agendamentos</StyledLink>
-        </NavItem>
-        <NavItem>
-          <StyledLink to="/configuracoes">Configurações</StyledLink>
-        </NavItem>
-      </NavList>
+      </Hamburger>
+      <div className="menu">
+        <Link to="/">Início</Link>
+        <Link to="/cadastro">Cadastro</Link>
+        <Link to="/agendamentos">Agendamentos</Link>
+        <Link to="/configuracoes">Configurações</Link>
+      </div>
     </NavbarContainer>
   );
 };
