@@ -99,8 +99,9 @@ const validationSchema = Yup.object({
 
 const CadastroPaciente = () => {
   const handleSubmit = (values) => {
+    console.log("Submitting values:", values);
     axios
-      .post("https://clinica-backend-beige.vercel.app/pacientes", values)
+      .post("https://clinica-backend-beige.vercel.app/api/pacientes", values)
       .then(() => {
         alert("Paciente cadastrado com sucesso!");
       })
@@ -126,7 +127,7 @@ const CadastroPaciente = () => {
             cidade: "",
             estado: "",
           },
-          fumante: "",
+          fumante: "Não",
           autorizacao_tratamento: false,
         }}
         validationSchema={validationSchema}
@@ -195,6 +196,13 @@ const CadastroPaciente = () => {
           </Section>
 
           <Section>
+            <Label>Você é fumante?</Label>
+            <Field name="fumante" as={SelectField}>
+              <option value="Sim">Sim</option>
+              <option value="Não">Não</option>
+            </Field>
+            <ErrorMessage name="fumante" component={ErrorText} />
+
             <Label>
               <Field type="checkbox" name="autorizacao_tratamento" />
               Autorizo o tratamento odontológico.
