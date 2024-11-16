@@ -68,18 +68,6 @@ const schema = yup.object({
   dentistaId: yup.string().required("Dentista é obrigatório"),
   procedimentoId: yup.string().required("Procedimento é obrigatório"),
   dataHora: yup.date().required("Data e hora são obrigatórios"),
-  horaInicio: yup.string().required("Hora de início é obrigatória"),
-  horaFim: yup
-    .string()
-    .required("Hora de término é obrigatória")
-    .test(
-      "horaFim-after-horaInicio",
-      "Hora de término deve ser após a hora de início",
-      function (value) {
-        const { horaInicio } = this.parent;
-        return value > horaInicio;
-      }
-    ),
 });
 
 const NovoAgendamento = () => {
@@ -96,27 +84,30 @@ const NovoAgendamento = () => {
   });
 
   useEffect(() => {
+    // Buscar pacientes
     const fetchPacientes = async () => {
       try {
-        const response = await axios.get("/api/pacientes");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/pacientes");
         setPacientes(response.data);
       } catch (error) {
         console.error("Erro ao carregar pacientes:", error);
       }
     };
 
+    // Buscar dentistas
     const fetchDentistas = async () => {
       try {
-        const response = await axios.get("/api/dentistas");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/dentistas");
         setDentistas(response.data);
       } catch (error) {
         console.error("Erro ao carregar dentistas:", error);
       }
     };
 
+    // Buscar procedimentos
     const fetchProcedimentos = async () => {
       try {
-        const response = await axios.get("/api/procedimentos");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/procedimentos");
         setProcedimentos(response.data);
       } catch (error) {
         console.error("Erro ao carregar procedimentos:", error);
@@ -130,8 +121,8 @@ const NovoAgendamento = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Dados enviados para o backend:", data);
-      await axios.post("/api/agendamentos", data);
+      console.log('Dados enviados para o backend:', data);
+      await axios.post("https://clinica-backend-beige.vercel.app/api/agendamentos", data);
       alert("Agendamento criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar agendamento:", error);
@@ -176,17 +167,9 @@ const NovoAgendamento = () => {
         </Select>
         {errors.procedimentoId && <ErrorMessage>{errors.procedimentoId.message}</ErrorMessage>}
 
-        <Label htmlFor="dataHora">Data</Label>
-        <Input type="date" {...register("dataHora")} />
+        <Label htmlFor="dataHora">Data e Hora</Label>
+        <Input type="datetime-local" {...register("dataHora")} />
         {errors.dataHora && <ErrorMessage>{errors.dataHora.message}</ErrorMessage>}
-
-        <Label htmlFor="horaInicio">Hora de Início</Label>
-        <Input type="time" {...register("horaInicio")} />
-        {errors.horaInicio && <ErrorMessage>{errors.horaInicio.message}</ErrorMessage>}
-
-        <Label htmlFor="horaFim">Hora de Término</Label>
-        <Input type="time" {...register("horaFim")} />
-        {errors.horaFim && <ErrorMessage>{errors.horaFim.message}</ErrorMessage>}
 
         <Button type="submit">Agendar</Button>
       </Form>
