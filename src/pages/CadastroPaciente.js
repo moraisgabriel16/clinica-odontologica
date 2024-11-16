@@ -149,7 +149,9 @@ const CadastroPaciente = () => {
               name="cpf"
               as={InputField}
               mask="999.999.999-99"
+              maskChar={null}
               placeholder="000.000.000-00"
+              type="text"
             />
             <ErrorMessage name="cpf" component={ErrorText} />
 
@@ -165,7 +167,9 @@ const CadastroPaciente = () => {
               name="telefone_celular"
               as={InputField}
               mask="(99) 99999-9999"
+              maskChar={null}
               placeholder="(00) 00000-0000"
+              type="text"
             />
             <ErrorMessage name="telefone_celular" component={ErrorText} />
           </Section>
