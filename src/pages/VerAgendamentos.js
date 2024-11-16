@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
+import 'moment/locale/pt-br'; // Importar o idioma português do Brasil para o moment
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import styled from 'styled-components';
 import Modal from 'react-modal';
@@ -18,6 +19,7 @@ const Title = styled.h2`
   color: #007bff;
 `;
 
+moment.locale('pt-br'); // Definir o idioma do moment para português
 const localizer = momentLocalizer(moment);
 
 const ModalContent = styled.div`
@@ -30,7 +32,8 @@ const ModalContent = styled.div`
     margin-bottom: 8px;
   }
 
-  select, input {
+  select,
+  input {
     padding: 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
@@ -125,7 +128,6 @@ const VerAgendamentos = () => {
   const [dataHora, setDataHora] = useState('');
 
   useEffect(() => {
-    // Carregar agendamentos da API
     const fetchAgendamentos = async () => {
       try {
         const response = await axios.get('https://clinica-backend-beige.vercel.app/api/agendamentos');
@@ -143,7 +145,6 @@ const VerAgendamentos = () => {
       }
     };
 
-    // Carregar pacientes, dentistas e procedimentos
     const fetchPacientes = async () => {
       try {
         const response = await axios.get('https://clinica-backend-beige.vercel.app/api/pacientes');
@@ -193,15 +194,16 @@ const VerAgendamentos = () => {
 
   const closeModal = () => {
     setModalIsOpen(false);
-    setSelectedSlot(null);
-    setDentistaId('');
-    setProcedimentoId('');
-    setPacienteId('');
-    setDataHora('');
+    clearModalFields();
   };
 
   const closeEditModal = () => {
     setEditModalIsOpen(false);
+    clearModalFields();
+  };
+
+  const clearModalFields = () => {
+    setSelectedSlot(null);
     setSelectedAgendamento(null);
     setDentistaId('');
     setProcedimentoId('');
@@ -221,7 +223,7 @@ const VerAgendamentos = () => {
       await axios.post('https://clinica-backend-beige.vercel.app/api/agendamentos', newAgendamento);
       alert('Agendamento criado com sucesso!');
       closeModal();
-      window.location.reload(); // Para atualizar os agendamentos no calendário
+      window.location.reload();
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
       alert('Erro ao criar agendamento. Tente novamente.');
@@ -240,7 +242,7 @@ const VerAgendamentos = () => {
       await axios.put(`https://clinica-backend-beige.vercel.app/api/agendamentos/${selectedAgendamento.id}`, updatedAgendamento);
       alert('Agendamento atualizado com sucesso!');
       closeEditModal();
-      window.location.reload(); // Para atualizar os agendamentos no calendário
+      window.location.reload();
     } catch (error) {
       console.error('Erro ao atualizar agendamento:', error);
       alert('Erro ao atualizar agendamento. Tente novamente.');
@@ -254,7 +256,7 @@ const VerAgendamentos = () => {
         await axios.delete(`https://clinica-backend-beige.vercel.app/api/agendamentos/${selectedAgendamento.id}`);
         alert('Agendamento excluído com sucesso!');
         closeEditModal();
-        window.location.reload(); // Para atualizar os agendamentos no calendário
+        window.location.reload();
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error);
         alert('Erro ao excluir o agendamento. Tente novamente.');
@@ -291,6 +293,7 @@ const VerAgendamentos = () => {
           today: 'Hoje',
           previous: 'Anterior',
           next: 'Próximo',
+          showMore: (total) => `+${total} mais`,
         }}
       />
 
