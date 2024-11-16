@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -6,6 +6,9 @@ import 'moment/locale/pt-br'; // Importar o idioma português do Brasil para o m
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import styled from 'styled-components';
 import Modal from 'react-modal';
+
+// Contexto para compartilhar agendamentos
+const AgendamentoContext = createContext();
 
 const Container = styled.div`
   padding: 20px;
@@ -114,81 +117,51 @@ const ModalTitle = styled.h2`
 `;
 
 const VerAgendamentos = () => {
-  const [agendamentos, setAgendamentos] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedAgendamento, setSelectedAgendamento] = useState(null);
-  const [pacientes, setPacientes] = useState([]);
-  const [dentistas, setDentistas] = useState([]);
-  const [procedimentos, setProcedimentos] = useState([]);
   const [dentistaId, setDentistaId] = useState('');
   const [procedimentoId, setProcedimentoId] = useState('');
   const [pacienteId, setPacienteId] = useState('');
   const [dataHora, setDataHora] = useState('');
+  const [duracao, setDuracao] = useState(60); // Duração padrão de 60 minutos
+
+  const { agendamentos, pacientes, dentistas, procedimentos, fetchAgendamentos } = useContext(AgendamentoContext);
 
   useEffect(() => {
-    const fetchAgendamentos = async () => {
-      try {
-        const response = await axios.get('https://clinica-backend-beige.vercel.app/api/agendamentos');
-        const formattedAgendamentos = response.data.map((agendamento) => ({
-          id: agendamento._id,
-          title: `Paciente: ${agendamento.pacienteId ? agendamento.pacienteId.nome_completo : 'Desconhecido'} - Dentista: ${agendamento.dentistaId ? agendamento.dentistaId.nome : 'Não Informado'}`,
-          start: new Date(agendamento.dataHora),
-          end: new Date(new Date(agendamento.dataHora).getTime() + 60 * 60 * 1000), // Definindo 1h de duração
-          procedimento: agendamento.procedimentoId ? agendamento.procedimentoId.nome : 'Não Informado',
-          backgroundColor: agendamento.procedimentoId ? agendamento.procedimentoId.cor : '#333',
-        }));
-        setAgendamentos(formattedAgendamentos);
-      } catch (error) {
-        console.error('Erro ao buscar agendamentos:', error);
-      }
-    };
-
-    const fetchPacientes = async () => {
-      try {
-        const response = await axios.get('https://clinica-backend-beige.vercel.app/api/pacientes');
-        setPacientes(response.data);
-      } catch (error) {
-        console.error('Erro ao carregar pacientes:', error);
-      }
-    };
-
-    const fetchDentistas = async () => {
-      try {
-        const response = await axios.get('https://clinica-backend-beige.vercel.app/api/dentistas');
-        setDentistas(response.data);
-      } catch (error) {
-        console.error('Erro ao carregar dentistas:', error);
-      }
-    };
-
-    const fetchProcedimentos = async () => {
-      try {
-        const response = await axios.get('https://clinica-backend-beige.vercel.app/api/procedimentos');
-        setProcedimentos(response.data);
-      } catch (error) {
-        console.error('Erro ao carregar procedimentos:', error);
-      }
-    };
-
     fetchAgendamentos();
-    fetchPacientes();
-    fetchDentistas();
-    fetchProcedimentos();
-  }, []);
+  }, [fetchAgendamentos]);
 
   const openModal = (slotInfo) => {
+    if (!pacientes.length || !dentistas.length || !procedimentos.length) {
+      alert('Por favor, aguarde até que todos os dados sejam carregados.');
+      return;
+    }
     setSelectedSlot(slotInfo);
+    setPacienteId('');
+    setDentistaId('');
+    setProcedimentoId('');
+    setDataHora(moment(slotInfo.start).format('YYYY-MM-DDTHH:mm'));
+    setDuracao(60); // Duração padrão para novo agendamento
     setModalIsOpen(true);
   };
 
   const openEditModal = (agendamento) => {
+    if (!pacientes.length || !dentistas.length || !procedimentos.length) {
+      alert('Por favor, aguarde até que todos os dados sejam carregados.');
+      return;
+    }
     setSelectedAgendamento(agendamento);
-    setPacienteId(agendamento.pacienteId ? agendamento.pacienteId._id : '');
-    setDentistaId(agendamento.dentistaId ? agendamento.dentistaId._id : '');
-    setProcedimentoId(agendamento.procedimentoId ? agendamento.procedimentoId._id : '');
-    setDataHora(moment(agendamento.start).format('YYYY-MM-DDTHH:mm'));
+
+    // Garantir que todos os estados sejam preenchidos com os valores do agendamento
+    setPacienteId(agendamento.pacienteId && agendamento.pacienteId._id ? agendamento.pacienteId._id : agendamento.pacienteId || '');
+    setDentistaId(agendamento.dentistaId && agendamento.dentistaId._id ? agendamento.dentistaId._id : agendamento.dentistaId || '');
+    setProcedimentoId(agendamento.procedimentoId && agendamento.procedimentoId._id ? agendamento.procedimentoId._id : agendamento.procedimentoId || '');
+
+    setDataHora(moment(agendamento.start).format('YYYY-MM-DDTHH:mm')); // Certifique-se de que dataHora esteja no formato correto
+    setDuracao(agendamento.duracao || 60); // Definir a duração ao abrir o modal de edição
+
     setEditModalIsOpen(true);
   };
 
@@ -209,21 +182,27 @@ const VerAgendamentos = () => {
     setProcedimentoId('');
     setPacienteId('');
     setDataHora('');
+    setDuracao(60); // Redefinir duração padrão
   };
 
   const handleCreateAgendamento = async () => {
+    if (!pacientes.length || !dentistas.length || !procedimentos.length) {
+      alert('Por favor, aguarde até que todos os dados sejam carregados.');
+      return;
+    }
     const newAgendamento = {
       pacienteId,
       dentistaId,
       procedimentoId,
       dataHora: selectedSlot.start,
+      duracao: Number(duracao),
     };
 
     try {
       await axios.post('https://clinica-backend-beige.vercel.app/api/agendamentos', newAgendamento);
       alert('Agendamento criado com sucesso!');
       closeModal();
-      window.location.reload();
+      fetchAgendamentos();
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
       alert('Erro ao criar agendamento. Tente novamente.');
@@ -231,18 +210,23 @@ const VerAgendamentos = () => {
   };
 
   const handleUpdateAgendamento = async () => {
+    if (!pacientes.length || !dentistas.length || !procedimentos.length) {
+      alert('Por favor, aguarde até que todos os dados sejam carregados.');
+      return;
+    }
     const updatedAgendamento = {
       pacienteId,
       dentistaId,
       procedimentoId,
       dataHora,
+      duracao: Number(duracao),
     };
 
     try {
       await axios.put(`https://clinica-backend-beige.vercel.app/api/agendamentos/${selectedAgendamento.id}`, updatedAgendamento);
       alert('Agendamento atualizado com sucesso!');
       closeEditModal();
-      window.location.reload();
+      fetchAgendamentos();
     } catch (error) {
       console.error('Erro ao atualizar agendamento:', error);
       alert('Erro ao atualizar agendamento. Tente novamente.');
@@ -256,7 +240,7 @@ const VerAgendamentos = () => {
         await axios.delete(`https://clinica-backend-beige.vercel.app/api/agendamentos/${selectedAgendamento.id}`);
         alert('Agendamento excluído com sucesso!');
         closeEditModal();
-        window.location.reload();
+        fetchAgendamentos();
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error);
         alert('Erro ao excluir o agendamento. Tente novamente.');
@@ -271,7 +255,9 @@ const VerAgendamentos = () => {
         localizer={localizer}
         events={agendamentos}
         startAccessor="start"
-        endAccessor="end"
+        endAccessor={(event) => {
+          return new Date(new Date(event.start).getTime() + (event.duracao || 60) * 60000);
+        }}
         style={{ height: 600 }}
         views={['month', 'week', 'day']}
         defaultView="month"
@@ -340,6 +326,23 @@ const VerAgendamentos = () => {
               ))}
             </select>
           </div>
+          <div>
+            <label>Data e Hora</label>
+            <input
+              type="datetime-local"
+              value={dataHora}
+              onChange={(e) => setDataHora(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Duração (em minutos)</label>
+            <input
+              type="number"
+              value={duracao}
+              onChange={(e) => setDuracao(Number(e.target.value))}
+              min="15"
+            />
+          </div>
         </ModalContent>
         <ModalButtons>
           <button className="confirm" onClick={handleCreateAgendamento}>
@@ -402,6 +405,15 @@ const VerAgendamentos = () => {
               onChange={(e) => setDataHora(e.target.value)}
             />
           </div>
+          <div>
+            <label>Duração (em minutos)</label>
+            <input
+              type="number"
+              value={duracao}
+              onChange={(e) => setDuracao(Number(e.target.value))}
+              min="15"
+            />
+          </div>
         </ModalContent>
         <ModalButtons>
           <button className="confirm" onClick={handleUpdateAgendamento}>
@@ -419,4 +431,72 @@ const VerAgendamentos = () => {
   );
 };
 
+// Componente de Provedor para fornecer contexto de Agendamentos
+const AgendamentoProvider = ({ children }) => {
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
+  const [dentistas, setDentistas] = useState([]);
+  const [procedimentos, setProcedimentos] = useState([]);
+
+  // Memorizar a função fetchAgendamentos com useCallback
+  const fetchAgendamentos = useCallback(async () => {
+    try {
+      const response = await axios.get('https://clinica-backend-beige.vercel.app/api/agendamentos');
+      const formattedAgendamentos = response.data.map((agendamento) => ({
+        id: agendamento._id,
+        title: `Paciente: ${agendamento.pacienteId ? agendamento.pacienteId.nome_completo : 'Desconhecido'} - Dentista: ${agendamento.dentistaId ? agendamento.dentistaId.nome : 'Não Informado'}`,
+        start: new Date(agendamento.dataHora),
+        end: new Date(new Date(agendamento.dataHora).getTime() + agendamento.duracao * 60000),
+        procedimento: agendamento.procedimentoId ? agendamento.procedimentoId.nome : 'Não Informado',
+        backgroundColor: agendamento.procedimentoId ? agendamento.procedimentoId.cor : '#333',
+        duracao: agendamento.duracao, // Inclui a duração no evento
+      }));
+      setAgendamentos(formattedAgendamentos);
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos:', error);
+    }
+  }, []); // A função é estável e só será recriada se algo mudar
+
+  const fetchPacientes = useCallback(async () => {
+    try {
+      const response = await axios.get('https://clinica-backend-beige.vercel.app/api/pacientes');
+      setPacientes(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar pacientes:', error);
+    }
+  }, []);
+
+  const fetchDentistas = useCallback(async () => {
+    try {
+      const response = await axios.get('https://clinica-backend-beige.vercel.app/api/dentistas');
+      setDentistas(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar dentistas:', error);
+    }
+  }, []);
+
+  const fetchProcedimentos = useCallback(async () => {
+    try {
+      const response = await axios.get('https://clinica-backend-beige.vercel.app/api/procedimentos');
+      setProcedimentos(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar procedimentos:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAgendamentos();
+    fetchPacientes();
+    fetchDentistas();
+    fetchProcedimentos();
+  }, [fetchAgendamentos, fetchPacientes, fetchDentistas, fetchProcedimentos]);
+
+  return (
+    <AgendamentoContext.Provider value={{ agendamentos, pacientes, dentistas, procedimentos, fetchAgendamentos }}>
+      {children}
+    </AgendamentoContext.Provider>
+  );
+};
+
 export default VerAgendamentos;
+export { AgendamentoProvider };
