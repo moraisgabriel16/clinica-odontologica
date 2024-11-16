@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const NavbarContainer = styled.nav`
-  background-color: #007bff; /* Azul-claro */
+  background-color: #007bff;
   padding: 15px;
+  position: relative;
 `;
 
 const NavList = styled.ul`
@@ -14,30 +15,75 @@ const NavList = styled.ul`
   align-items: center;
   margin: 0;
   padding: 0;
-  flex-wrap: wrap; /* Torna a navbar responsiva */
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    display: ${(props) => (props.isOpen ? "block" : "none")};
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: #007bff;
+    padding: 10px;
+    border-radius: 0 0 8px 8px;
+  }
 `;
 
 const NavItem = styled.li`
   color: white;
   font-weight: bold;
+  margin: 0 10px;
+
   &:hover {
     text-decoration: underline;
   }
-  margin: 0 10px; /* Adicionado espaço entre os itens */
+
+  @media (max-width: 768px) {
+    margin: 10px 0;
+  }
 `;
 
 const StyledLink = styled(Link)`
   color: white;
   text-decoration: none;
+
   &:hover {
     text-decoration: underline;
   }
 `;
 
+const HamburgerIcon = styled.div`
+  display: none;
+  cursor: pointer;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+
+  div {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 5px 0;
+    transition: 0.4s;
+  }
+`;
+
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <NavbarContainer>
-      <NavList>
+      <HamburgerIcon onClick={toggleMenu}>
+        <div></div>
+        <div></div>
+        <div></div>
+      </HamburgerIcon>
+      <NavList isOpen={isOpen}>
         <NavItem>
           <StyledLink to="/cadastro-paciente">Cadastro de Paciente</StyledLink>
         </NavItem>
@@ -51,7 +97,7 @@ const Navbar = () => {
           <StyledLink to="/ver-agendamentos">Ver Agendamentos</StyledLink>
         </NavItem>
         <NavItem>
-          <StyledLink to="/configuracoes">Configurações</StyledLink> {/* Novo link para Configurações */}
+          <StyledLink to="/configuracoes">Configurações</StyledLink>
         </NavItem>
       </NavList>
     </NavbarContainer>
