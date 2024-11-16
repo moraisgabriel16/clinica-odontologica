@@ -105,7 +105,7 @@ const PacienteDetails = () => {
   useEffect(() => {
     const fetchPaciente = async () => {
       try {
-        const response = await axios.get(`https://clinica-backend-beige.vercel.app//api/pacientes/${id}`);
+        const response = await axios.get(`https://clinica-backend-beige.vercel.app/api/pacientes/${id}`);
         if (response.data) {
           setPaciente(response.data);
           setFormData({
@@ -146,7 +146,7 @@ const PacienteDetails = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`https://clinica-backend-beige.vercel.app//api/pacientes/${id}`, formData);
+      const response = await axios.put(`https://clinica-backend-beige.vercel.app/api/pacientes/${id}`, formData);
       alert('Paciente atualizado com sucesso!');
       setPaciente(response.data);
       setIsEditing(false);
@@ -160,7 +160,7 @@ const PacienteDetails = () => {
     const confirmed = window.confirm('Tem certeza que deseja excluir este paciente?');
     if (confirmed) {
       try {
-        await axios.delete(`https://clinica-backend-beige.vercel.app//api/pacientes/${id}`);
+        await axios.delete(`https://clinica-backend-beige.vercel.app/api/pacientes/${id}`);
         alert('Paciente excluído com sucesso!');
         navigate('/buscar-pacientes');
       } catch (error) {

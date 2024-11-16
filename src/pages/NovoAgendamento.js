@@ -87,7 +87,7 @@ const NovoAgendamento = () => {
     // Buscar pacientes
     const fetchPacientes = async () => {
       try {
-        const response = await axios.get("https://clinica-backend-beige.vercel.app//api/pacientes");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/pacientes");
         setPacientes(response.data);
       } catch (error) {
         console.error("Erro ao carregar pacientes:", error);
@@ -97,7 +97,7 @@ const NovoAgendamento = () => {
     // Buscar dentistas
     const fetchDentistas = async () => {
       try {
-        const response = await axios.get("https://clinica-backend-beige.vercel.app//api/dentistas");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/dentistas");
         setDentistas(response.data);
       } catch (error) {
         console.error("Erro ao carregar dentistas:", error);
@@ -107,7 +107,7 @@ const NovoAgendamento = () => {
     // Buscar procedimentos
     const fetchProcedimentos = async () => {
       try {
-        const response = await axios.get("https://clinica-backend-beige.vercel.app//api/procedimentos");
+        const response = await axios.get("https://clinica-backend-beige.vercel.app/api/procedimentos");
         setProcedimentos(response.data);
       } catch (error) {
         console.error("Erro ao carregar procedimentos:", error);
@@ -122,7 +122,7 @@ const NovoAgendamento = () => {
   const onSubmit = async (data) => {
     try {
       console.log('Dados enviados para o backend:', data);
-      await axios.post("https://clinica-backend-beige.vercel.app//api/agendamentos", data);
+      await axios.post("https://clinica-backend-beige.vercel.app/api/agendamentos", data);
       alert("Agendamento criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar agendamento:", error);
